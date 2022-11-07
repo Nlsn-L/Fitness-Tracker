@@ -16,10 +16,10 @@ async function dropTables() {
   try{
   await client.query(
     `DROP TABLE IF EXISTS routines_activities;
-     DROP TABLE IF EXISTS routines;
      DROP TABLE IF EXISTS activities;
+     DROP TABLE IF EXISTS routines;
      DROP TABLE IF EXISTS users;
-    `);
+     `);
   }catch(error){
     console.error("Error dropping tables!")
     throw error;
