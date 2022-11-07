@@ -12,14 +12,58 @@ const {createUser,
 async function dropTables() {
   console.log("Dropping All Tables...")
   // drop all tables, in the correct order
+
+  try{
+  await client.query(
+    `DROP TABLE IF EXISTS routines_activities;
+     DROP TABLE IF EXISTS routines;
+     DROP TABLE IF EXISTS activities;
+     DROP TABLE IF EXISTS users;
+    `);
+  }catch(error){
+    console.error("Error dropping tables!")
+    throw error;
+  }
+
 }
 
 async function createTables() {
   console.log("Starting to build tables...")
   // create all tables, in the correct order
+  try {
+    await client.query(
+      `CREATE TABLE users(
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL
+      );
+      CREATE TABLE activities(
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        description TEXT NOT NULL
+      );
+      CREATE TABLE routines(
+        id SERIAL PRIMARY KEY,
+        "creatorId" INTEGER REFERENCES users(id),
+        "isPublic" BOOLEAN DEFAULT false,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        goal TEXT NOT NULL
+      );
+      CREATE TABLE routine_activities(
+        id SERIAL PRIMARY KEY,
+        "routineId" INTEGER REFERENCES routines(id),
+        "activityId" INTEGER REFERENCES activities(id),
+        duration INTEGER,
+        count INTEGER
+      );
+    `);
+        console.log("Finished building tables!")
 
 
-
+  } catch (error) {
+    console.error("Error creating tables!")
+    throw error;
+  }
 }
 
 /* 
