@@ -115,7 +115,7 @@ describe("DB Routines", () => {
       `);
   });
 
-  xdescribe("getAllRoutines", () => {
+  describe("getAllRoutines", () => {
 
     it("should include the public routine", async () => {
       const routines = await getAllRoutines();
@@ -368,7 +368,7 @@ describe("DB Routines", () => {
     });
   });
 
-  xdescribe("createRoutine", () => {
+  describe("createRoutine", () => {
     it("creates and returns the new routine", async () => {
       const user = await createFakeUser();
       const routine = await createRoutine({
@@ -382,7 +382,7 @@ describe("DB Routines", () => {
     });
   });
 
-  xdescribe("updateRoutine", () => {
+  describe("updateRoutine", () => {
     it("Returns the updated routine", async () => {
       const fakeRoutine = await createFakePublicRoutine();
 
