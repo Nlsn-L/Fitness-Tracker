@@ -10,14 +10,14 @@ async function addActivityToRoutine({
   duration,
 }) {
     try {
-     const {rows: [routine_activity]} = client.query(`
-     INSERT INTO routine (activityId, count, duration)
-     FROM routine_activities
-     WHERE id=$1
+     const {rows: [routine_activity]} = await client.query(`
+     INSERT INTO routine_activities ("routineId", "activityId", count, duration)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT ("routineId", "activityId") DO NOTHING
      RETURNING *;
-     `, [routineId,activityId, count, duration]) 
+     `, [routineId, activityId, count, duration]) 
 
-      console.log(routine_activity, "this is routine from addthang")
+     
      return routine_activity;
     } catch (error) {
       throw error;

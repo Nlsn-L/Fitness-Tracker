@@ -30,6 +30,16 @@ async function getRoutinesWithoutActivities(){
 }
 
 async function getAllRoutines() {
+  try{
+    const {rows} = await client.query(`
+    SELECT *
+    FROM routine_activities;
+    `)
+    console.log(rows, "getAllRoutines rows")
+    return rows;
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getAllRoutinesByUser({username}) {
@@ -52,7 +62,7 @@ async function createRoutine({creatorId, isPublic, name, goal}) {
     ON CONFLICT (name) DO NOTHING
     RETURNING *;
     `, [creatorId, isPublic, name, goal]);
-    console.log(routine, "new routine")
+   
     return routine;
   } catch (error) {
     console.error("Error creating routine")
