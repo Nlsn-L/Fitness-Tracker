@@ -93,7 +93,22 @@ async function getAllPublicRoutines() {
   }
 }
 
-async function getPublicRoutinesByActivity({id}) {
+async function getPublicRoutinesByActivity(params) {
+
+  const {id} = params
+  try {
+    const {rows} = await client.query(`
+    SELECT routines.*, users.username AS "creatorName"
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
+    JOIN routine_activities ON routine_activities."routineId" = routines.id
+    WHERE routines."isPublic" = true AND routine_activities."activityId" = $1
+    `, [id])
+const routines = await attachActivitiesToRoutines(rows)
+    return routines
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function createRoutine({creatorId, isPublic, name, goal}) {
@@ -113,9 +128,43 @@ async function createRoutine({creatorId, isPublic, name, goal}) {
 }
 
 async function updateRoutine({id, ...fields}) {
+  const setString = Object.keys(fields).map(
+    (values,index) => {
+      return `"${values}" = $${index + 1}`
+    }
+  ).join(", ")
+
+    if (setString.length === 0){
+      return;
+    }
+  try{
+    const {rows: [result]} = await client.query(`
+    UPDATE routines
+    SET ${setString}   
+    WHERE id=${id}
+    RETURNING *;   
+    `,Object.values(fields))
+    return result
+  }catch (error) {
+    console.error("Error updating activity!")
+    throw error;
+}
+
 }
 
 async function destroyRoutine(id) {
+  try{
+    const {rows} = await client.query(`
+    DELETE routines, routine_activities
+    FROM routines
+    JOIN routine_activities ON routine.id = routine.id
+    WHERE routine.id = $1
+    `, [id])
+
+    return attachActivitiesToRoutines(rows)
+  } catch (error){
+    throw error;
+  }
 }
 
 module.exports = {
