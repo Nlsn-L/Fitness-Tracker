@@ -14,4 +14,10 @@ client.connect();
 const apiRouter = require("./api")
 app.use('/api',apiRouter)
 
+
+
+
+
+
+
 module.exports = app;
