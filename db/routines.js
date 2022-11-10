@@ -1,5 +1,6 @@
 const client = require('./client');
 const {attachActivitiesToRoutines} = require('./activities')
+
 async function getRoutineById(id){
   try{ 
     const {rows: [routine]} = await client.query(`
@@ -107,6 +108,7 @@ async function getPublicRoutinesByActivity(params) {
 const routines = await attachActivitiesToRoutines(rows)
     return routines
   } catch (error) {
+    console.error("Error getting public routines by activity!")
     throw error;
   }
 }
@@ -156,17 +158,18 @@ async function destroyRoutine(id) {
   try{
 
 
+    // eslint-disable-next-line no-unused-vars
     const {row} = await client.query(`
     DELETE FROM routine_activities
     WHERE routine_activities."routineId" = $1  
     `,[id])
 
+    // eslint-disable-next-line no-unused-vars
     const {rows} = await client.query(`
     DELETE FROM routines
     WHERE routines.id = $1;
     `, [id])
 
-    // return rows
   } catch (error){
     console.error("Error destroying routine!")
     throw error;
