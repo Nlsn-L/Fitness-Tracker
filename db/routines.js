@@ -1,5 +1,6 @@
 const client = require('./client');
 const {attachActivitiesToRoutines} = require('./activities')
+
 async function getRoutineById(id){
   try{ 
     const {rows: [routine]} = await client.query(`
@@ -93,7 +94,23 @@ async function getAllPublicRoutines() {
   }
 }
 
-async function getPublicRoutinesByActivity({id}) {
+async function getPublicRoutinesByActivity(params) {
+
+  const {id} = params
+  try {
+    const {rows} = await client.query(`
+    SELECT routines.*, users.username AS "creatorName"
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
+    JOIN routine_activities ON routine_activities."routineId" = routines.id
+    WHERE routines."isPublic" = true AND routine_activities."activityId" = $1
+    `, [id])
+const routines = await attachActivitiesToRoutines(rows)
+    return routines
+  } catch (error) {
+    console.error("Error getting public routines by activity!")
+    throw error;
+  }
 }
 
 async function createRoutine({creatorId, isPublic, name, goal}) {
@@ -113,9 +130,50 @@ async function createRoutine({creatorId, isPublic, name, goal}) {
 }
 
 async function updateRoutine({id, ...fields}) {
+  const setString = Object.keys(fields).map(
+    (values,index) => {
+      return `"${values}" = $${index + 1}`
+    }
+  ).join(", ")
+
+    if (setString.length === 0){
+      return;
+    }
+  try{
+    const {rows: [result]} = await client.query(`
+    UPDATE routines
+    SET ${setString}   
+    WHERE id=${id}
+    RETURNING *;   
+    `,Object.values(fields))
+    return result
+  }catch (error) {
+    console.error("Error updating activity!")
+    throw error;
+}
+
 }
 
 async function destroyRoutine(id) {
+  try{
+
+
+    // eslint-disable-next-line no-unused-vars
+    const {row} = await client.query(`
+    DELETE FROM routine_activities
+    WHERE routine_activities."routineId" = $1  
+    `,[id])
+
+    // eslint-disable-next-line no-unused-vars
+    const {rows} = await client.query(`
+    DELETE FROM routines
+    WHERE routines.id = $1;
+    `, [id])
+
+  } catch (error){
+    console.error("Error destroying routine!")
+    throw error;
+  }
 }
 
 module.exports = {
