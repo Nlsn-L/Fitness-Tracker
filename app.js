@@ -8,7 +8,7 @@ const morgan = require("morgan");
 app.use(morgan("dev"));
 
 app.use(express.json());
-const { client } = require('./db')
+const client = require('./db/client')
 client.connect();
 
 const apiRouter = require("./api")

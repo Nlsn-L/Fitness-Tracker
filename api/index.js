@@ -6,6 +6,10 @@ const jwt = require('jsonwebtoken');
 const { getUserById } = require('../db');
 const { JWT_SECRET } = process.env;
 
+router.get('/health', async (req, res, next) => {
+  res.send({message:'The healthy route.'})
+});
+
 // set `req.user` if possible
 router.use(async (req, res, next) => {
   const prefix = 'Bearer ';
@@ -38,9 +42,6 @@ router.use(async (req, res, next) => {
 
 
 // GET /api/health
-router.get('/health', async (req, res, next) => {
-    res.send("healthy")
-});
 
 // ROUTER: /api/users
 const usersRouter = require('./users');
