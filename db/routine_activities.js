@@ -1,5 +1,6 @@
 const { attachActivitiesToRoutines } = require('./activities')
 const client = require('./client')
+const { getUserByUsername } = require('./users')
 
 async function getRoutineActivityById(id){
 
@@ -104,18 +105,12 @@ try {
 
 async function canEditRoutineActivity(routineActivityId, userId) {
 
-  try {
-    const {rows} = await client.query(`
-
+  if (routineActivityId == userId) {
     
-    `,[routineActivityId,userId])
-
-
-  } catch (error) {
-    console.error("Error in this function")
-    throw error
-  }
-
+    let result = true
+    return result 
+  } 
+  
 
 }
 
