@@ -3,7 +3,7 @@ const router = express.Router();
 const {createUser,
         getUser,
         getUserByUsername,
-        getPublicRoutinesByUser
+        getAllRoutinesByUser
     } = require("../db")
 const jwt = require('jsonwebtoken')
 const {requireUser} = require('./utils')
@@ -86,6 +86,7 @@ router.post('/register',async (req,res,next) => {
 router.get("/me",requireUser, async (req,res,next) => {
         try {
             res.send(req.user) 
+          
         } catch (error) {    
             next(error);
         }
@@ -101,13 +102,22 @@ router.get("/me",requireUser, async (req,res,next) => {
 router.get("/:username/routines",requireUser, async (req,res,next) => {
     const {username}= req.params;
 
-    const routine = await getPublicRoutinesByUser({username})
-    console.log(routine,"this is routines by user")
+    const allRoutines = await getAllRoutinesByUser({username})
+    console.log(allRoutines,"this is all routines by user")
     try {
-        console.log("im in the try on 107")
+    const routines = allRoutines.filter(routine => {if (routine.isPublic) {
+        return true 
+    } if (req.user && routine.user.id == req.user.id) {
+        return true
+    } 
+    return false 
+});
+     
+res.send(routines)
+        
     } catch (error) {
         next();
     }
-})
+});
 
 module.exports = router;
