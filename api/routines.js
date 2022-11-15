@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllPublicRoutines, createRoutine, getRoutineById } = require("../db");
+const { getAllPublicRoutines, createRoutine, getRoutineById, updateRoutine } = require("../db");
 const { requireUser } = require("./utils");
 const router = express.Router();
 
@@ -52,7 +52,7 @@ router.patch("/:routineId",requireUser, async (req,res,next) => {
     const originalRoutine = await getRoutineById(routineId)
     console.log(originalRoutine)
     if (req.user && originalRoutine.creatorId == req.user.id){
-      console.log("placeholder")
+      const updatedRoutine = await updateRoutine({id:routineId, fields:updateFields})
 
     }else{
       res.send(Error.status(403))
