@@ -96,7 +96,7 @@ async function updateActivity({ id, ...fields }) {
       `,Object.values(fields))
       return result
     }catch (error) {
-      console.error("Error updating activity!")
+      // console.error("Error updating activity!")
       throw error;
   }
 

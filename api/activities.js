@@ -74,7 +74,7 @@ router.patch("/:activityId", requireUser, async (req, res, next) => {
     if (description){
         updateFields.description = description
     }
-    
+    console.log(activityId, "77 log")
     try {
         const originalActivity = await getActivityById(activityId)
 
@@ -85,24 +85,29 @@ router.patch("/:activityId", requireUser, async (req, res, next) => {
         }
 
         console.log(originalActivity, "this is the old one")
-        console.log(name, "this is the name")
+       
+        
 
-        if (name){
+        const existingActivity = await getActivityByName(name)
+        // for (let i = 0; i <= existingActivities.length; i++) {
+        //     existingName = 
+        // }
+        if (existingActivity){
             res.send({error:"ActivityExists",
                       message:`An activity with name ${name} already exists`,
                       name:"ActivityExists"})
         }
-        
-
-        if (req.user){
-            const updatedActivity = await updateActivity({id:activityId, fields:updateFields})
+        console.log(existingActivity, "exists")
+        console.log(updateFields, "fields")
+        // if (!existingActivity){
+            const updatedActivity = await updateActivity({id: activityId, fields: updateFields})
             
             res.send({activity:updatedActivity})
-        }else {
-            next({error:"UnauthorizedError",
-            message:`You are not authorized to perform this action`,
-            name:"UnauthorizedUser"})
-        }
+        // }else {
+        //     next({error:"UnauthorizedError",
+        //     message:`You are not authorized to perform this action`,
+        //     name:"UnauthorizedUser"})
+        // }
 
 
 
