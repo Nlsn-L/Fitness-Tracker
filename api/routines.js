@@ -58,7 +58,7 @@ router.patch("/:routineId",requireUser, async (req,res,next) => {
       res.send(Error.status(403))
     }
   } catch (error) {
-    
+    next();
   }
 
 
