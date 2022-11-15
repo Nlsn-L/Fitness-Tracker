@@ -17,7 +17,7 @@ router.post("/login",async (req,res,next) => {
   
   if (!username || !password){
     res.send({name:"MissingCredentialsError",
-    message:"PLease enter both username and password to login."})
+    message:"Please enter both username and password to login."})
 
     next();
   }
@@ -53,7 +53,7 @@ router.post('/register',async (req,res,next) => {
     try{
         if (_user){
             res.send({error:"DuplicateUsers",
-                      name:"DUplicateUser",
+                      name:"DuplicateUser",
                       message:`User ${username} is already taken.`})
         }
         if (password.length < 8){
@@ -103,7 +103,6 @@ router.get("/:username/routines",requireUser, async (req,res,next) => {
     const {username}= req.params;
 
     const allRoutines = await getAllRoutinesByUser({username})
-    console.log(allRoutines,"this is all routines by user")
     try {
     const routines = allRoutines.filter(routine => {if (routine.isPublic) {
         return true 

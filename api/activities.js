@@ -1,30 +1,31 @@
 const express = require('express');
-const id = require('faker/lib/locales/id_ID');
-const { getAllActivities, createActivity, getActivityByName, getPublicRoutinesByActivity } = require('../db');
+const { getAllActivities, createActivity, getActivityByName, getPublicRoutinesByActivity, getActivityById, updateActivity } = require('../db');
 const { requireUser } = require('./utils');
 const router = express.Router();
 
 // GET /api/activities/:activityId/routines
 router.get("/:activityId/routines", async (req,res,next) => {
 
+
     const {activityId} = req.params;
+    const routinesWithActivity = await getPublicRoutinesByActivity({id: activityId})
     try{
-        const routinesWithActivity = await getPublicRoutinesByActivity({id: activityId})
+    if (routinesWithActivity.length  == 0){
+            res.send({
+                error: "ActivityNotFound",
+                message: `Activity ${activityId} not found`,
+                name: "ActivityNotFound"
+    })
+    }
 
-        console.log(activityId, "activityId")
-        console.log(routinesWithActivity, "i am the thing")
 
-    // if (!id) {
-    //     res.send({
-    //         error: "ActivityNotFound",
-    //         message: `Activity ${activityId} not found`,
-    //         name: "ActivityNotFound",
-    //     })
-    // }
-        
+    if (routinesWithActivity) {
         res.send(routinesWithActivity)
+        
+    }
+        
     } catch (error) {
-        throw (error)
+        next();
     }
 });
 // GET /api/activities
@@ -34,7 +35,7 @@ router.get("/", async (req, res, next) => {
    
     res.send(allActivities)
   }catch (error) {
-    next()
+    next();
   }
 });
  
@@ -57,14 +58,61 @@ try{
 
     res.send(newActivity)
 }catch (error) {
-    throw error;
+    next();
 }
 })
 // PATCH /api/activities/:activityId
-// router.patch("/:activityId", requireUser, async (req, res, next) => {
-//     const {name, description} = req.params;
+router.patch("/:activityId", requireUser, async (req, res, next) => {
+    const {activityId} = req.params;
+    const {name,description} = req.body
+    const updateFields = {}
 
-// })
+    if (name){
+        updateFields.name = name
+    }
+
+    if (description){
+        updateFields.description = description
+    }
+    
+    try {
+        const originalActivity = await getActivityById(activityId)
+
+        if (!originalActivity){
+            res.send({error:"NonExistingActivity",
+            message:`Activity ${activityId} not found`,
+            name:"NonExistingActivity"})
+        }
+
+        console.log(originalActivity, "this is the old one")
+        console.log(name, "this is the name")
+
+        if (name){
+            res.send({error:"ActivityExists",
+                      message:`An activity with name ${name} already exists`,
+                      name:"ActivityExists"})
+        }
+        
+
+        if (req.user){
+            const updatedActivity = await updateActivity({id:activityId, fields:updateFields})
+            
+            res.send({activity:updatedActivity})
+        }else {
+            next({error:"UnauthorizedError",
+            message:`You are not authorized to perform this action`,
+            name:"UnauthorizedUser"})
+        }
+
+
+
+
+    } catch (error) {
+        next();
+    }
+
+
+})
 
 
 module.exports = router;
